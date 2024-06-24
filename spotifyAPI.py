@@ -1,15 +1,17 @@
 import base64
-from dotenv import load_dotenv
 import json
+import MoodFy
 import os
+from dotenv import load_dotenv
 from requests import post, get
+
 
 load_dotenv()
 
 client_id = os.getenv("CLIENT_ID")
 client_secret = os.getenv("CLIENT_SECRET")
 
-def get_token():
+def get_spotify_token():
     auth_string = client_id + ":" + client_secret
     auth_base64 = str(base64.b64encode(auth_string.encode("utf-8")), "utf-8")
 
@@ -27,14 +29,43 @@ def get_token():
 
     return token
 
-def get_auth_header(token):
+def get_spotify_auth_header(token):
     return {"Authorization": "Bearer " + token}
 
+
+def get_spotify_genres():
+    genres = ""
+    mood = MoodFy.Mood()
+
+    match mood:
+        case "happy":
+            genres = "pop, anime, disco, k-pop, reggaeton"
+            
+        case "neutral":
+            genres = "chill, ambient, alternative, classical, jazz"
+
+        case 'angry':
+            genres = "metal, death-metal, hardcore-punk, punk, hard-rock"
+
+        case 'disgust':
+            genres = "industrial, black-metal, grindcore, punk-rock"
+
+        case 'fear':
+            genres = "goth, industrial, black-metal, horrorcore"
+
+        case 'sad':
+            genres = "blues, emo, folk, grunge, sad"
+
+        case 'surprise':
+            genres = "progressive-house, alternative, psych-rock, alt-rock, j-pop"
+
+    return genres
+
 tracks_limit = 5
-def search_tracks_by_genre(token, genre):
+def search_spotify_tracks_by_genres(token, genres):
     url = "https://api.spotify.com/v1/recommendations"
-    header = get_auth_header(token)
-    query = f"?seed_genres={genre}&limit={tracks_limit}"
+    header = get_spotify_auth_header(token)
+    query = f"?seed_genres={genres}&limit={tracks_limit}"
 
     query_url = url + query
     result = get(query_url, headers = header)
@@ -46,8 +77,9 @@ def search_tracks_by_genre(token, genre):
     #print(json_result["tracks"])
     return json_result["tracks"]
 
-token = get_token()
-tracks = search_tracks_by_genre(token, "rock-n-roll")
+token = get_spotify_token()
+genres = get_spotify_genres()
+tracks = search_spotify_tracks_by_genres(token, genres)
 
 for i, song in enumerate(tracks):
     print(f"{i + 1}: {song["name"]}")
