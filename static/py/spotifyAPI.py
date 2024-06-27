@@ -1,6 +1,6 @@
 import base64
 import json
-import MoodFy
+import emotion
 import os
 from dotenv import load_dotenv
 from requests import post, get
@@ -35,7 +35,7 @@ def get_spotify_auth_header(token):
 
 def get_spotify_genres():
     genres = ""
-    mood = MoodFy.Mood()
+    mood = emotion.Mood()
 
     match mood:
         case "happy":
