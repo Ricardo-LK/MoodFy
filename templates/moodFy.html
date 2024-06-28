@@ -15,9 +15,56 @@
     </header>
 
     <div>
-      <img src="{{url_for('video')}}" width="50%" alt="vid" />
+      <img src="{{url_for('video')}}" width="50%" alt="vid" id="videoFeed" />
 
-      <button>Find!</button>
+      <p id="emotionDisplay"></p>
+      <button id="getSongs">Get Songs!</button>
+
+      <table id="songsTable" border="1">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Song</th>
+            <th>Artist</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </div>
+
+    <script>
+      document
+        .getElementById("getSongs")
+        .addEventListener("click", async () => {
+          try {
+            const response = await fetch("/capture_emotion");
+            const data = await response.json();
+
+            document.getElementById(
+              "emotionDisplay"
+            ).innerText = `Detected Emotion ${data.emotion}`;
+
+            const songsTable = document
+              .getElementById("songsTable")
+              .getElementsByTagName("tbody")[0];
+            songsTable.innerHTML = "";
+
+            data.tracks.forEach((track, index) => {
+              const row = songsTable.insertRow(0);
+              const cell1 = row.insertCell(0);
+              const cell2 = row.insertCell(1);
+              const cell3 = row.insertCell(2);
+
+              cell1.innerHTML = index + 1;
+              cell2.innerHTML = track.name;
+              cell3.innerHTML = track.artists
+                .map((artist) => artist.name)
+                .join(", ");
+            });
+          } catch (err) {
+            console.error("Error: ", err);
+          }
+        });
+    </script>
   </body>
 </html>
