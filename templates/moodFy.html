@@ -10,61 +10,43 @@
     <title>MoodFy</title>
   </head>
   <body>
-    <header>
+    <header class="title">
       <h1>MoodFy</h1>
     </header>
 
-    <div>
-      <img src="{{url_for('video')}}" width="50%" alt="vid" id="videoFeed" />
+    <div class="container">
+      <img src="{{ url_for('video') }}" width="50%" alt="vid" id="videoFeed" />
 
-      <p id="emotionDisplay"></p>
-      <button id="getSongs">Get Songs!</button>
+      <p id="emotionDisplay">
+        {% if emotion %} Detected Emotion: {{ emotion }} {% endif %}
+      </p>
+      <form action="{{ url_for('capture_emotion') }}" method="POST">
+        <button type="submit">Find!</button>
+      </form>
 
-      <table id="songsTable" border="1">
+      {% if tracks %}
+      <table id="tracksTable" border="1">
         <thead>
           <tr>
             <th>#</th>
-            <th>Song</th>
-            <th>Artist</th>
+            <th>Track</th>
+            <th>Artists</th>
           </tr>
         </thead>
-        <tbody></tbody>
+        <tbody>
+          {% for track in tracks %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ track.name }}</td>
+            <td>
+              {% for artist in track.artists %}{{ artist.name }} {% if not
+              loop.last %}, {%endif%}{%endfor%}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
       </table>
+      {% endif %}
     </div>
-
-    <script>
-      document
-        .getElementById("getSongs")
-        .addEventListener("click", async () => {
-          try {
-            const response = await fetch("/capture_emotion");
-            const data = await response.json();
-
-            document.getElementById(
-              "emotionDisplay"
-            ).innerText = `Detected Emotion ${data.emotion}`;
-
-            const songsTable = document
-              .getElementById("songsTable")
-              .getElementsByTagName("tbody")[0];
-            songsTable.innerHTML = "";
-
-            data.tracks.forEach((track, index) => {
-              const row = songsTable.insertRow(0);
-              const cell1 = row.insertCell(0);
-              const cell2 = row.insertCell(1);
-              const cell3 = row.insertCell(2);
-
-              cell1.innerHTML = index + 1;
-              cell2.innerHTML = track.name;
-              cell3.innerHTML = track.artists
-                .map((artist) => artist.name)
-                .join(", ");
-            });
-          } catch (err) {
-            console.error("Error: ", err);
-          }
-        });
-    </script>
   </body>
 </html>

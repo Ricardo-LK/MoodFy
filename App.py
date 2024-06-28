@@ -1,7 +1,8 @@
-from flask import Flask, render_template, Response, jsonify
+from flask import Flask, render_template, Response, request, redirect, url_for
 from deepface import DeepFace
 import cv2
 import base64
+import json
 import os
 from dotenv import load_dotenv
 from requests import post, get
@@ -89,7 +90,7 @@ def index():
 def video():
     return Response(get_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-@app.route('/capture_emotion', methods=['GET'])
+@app.route('/capture_emotion', methods=['POST'])
 def capture_emotion():
     success, frame = camera.read()
     if success:
@@ -99,8 +100,8 @@ def capture_emotion():
             genres = get_spotify_genres(emotion)
             if genres:
                 tracks = search_spotify_tracks_by_genres(token, genres)
-                return jsonify({"emotion": emotion, "tracks": tracks})
-    return jsonify({"emotion": "No face detected or no tracks found"}), 400
+                return render_template('moodFy.html', emotion=emotion, tracks=tracks)
+    return render_template('moodFy.html', emotion="No face detected or no tracks found", tracks=[])
 
 if __name__ == "__main__":
     app.run(debug=True)
