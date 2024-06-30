@@ -13,19 +13,28 @@
     <header class="title">
       <h1>MoodFy</h1>
     </header>
-
     <div class="container">
-      <img src="{{ url_for('video') }}" width="50%" alt="vid" id="videoFeed" />
+      <div class="video-container">
+        <div class="emotion-container">
+          <img
+            src="{{ url_for('video') }}"
+            alt="vid"
+            id="videoFeed"
+            class="videoFeed"
+          />
 
-      <p id="emotionDisplay">
-        {% if emotion %} Detected Emotion: {{ emotion }} {% endif %}
-      </p>
-      <form action="{{ url_for('capture_emotion') }}" method="POST">
-        <button type="submit">Find!</button>
-      </form>
+          <p id="emotionDisplay" class="detected-emotion">
+            {% if emotion %} Detected Emotion: {{ emotion }} {% endif %}
+          </p>
+        </div>
+
+        <form action="{{ url_for('capture_emotion') }}" method="POST">
+          <button type="submit" class="find-button">FIND!</button>
+        </form>
+      </div>
 
       {% if tracks %}
-      <table id="tracksTable" border="1">
+      <table id="tracksTable" class="tracks-table" border="1">
         <thead>
           <tr>
             <th>#</th>
