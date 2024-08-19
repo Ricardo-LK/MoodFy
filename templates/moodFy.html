@@ -15,6 +15,28 @@
     </header>
     <div class="container">
       <div class="video-container">
+        Platform = {{ platform }}
+
+        <form action="{{ url_for('select_platform') }}" method="post">
+          <button
+            type="submit"
+            name="variable"
+            value="spotify"
+            class="platform-selection"
+          >
+            SpotiFy
+          </button>
+
+          <button
+            type="submit"
+            name="variable"
+            value="youtube"
+            class="platform-selection"
+          >
+            YouTube
+          </button>
+        </form>
+
         <div class="emotion-container">
           <img
             src="{{ url_for('video') }}"
@@ -57,5 +79,8 @@
       </table>
       {% endif %}
     </div>
+
+    variable = {{selected_plataform}}
+    <script></script>
   </body>
 </html>

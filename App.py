@@ -4,6 +4,7 @@ import cv2
 import base64
 import json
 import os
+import webbrowser
 from dotenv import load_dotenv
 from requests import post, get
 
@@ -16,6 +17,8 @@ tracks_limit = 5
 
 client_id = os.getenv("CLIENT_ID")
 client_secret = os.getenv("CLIENT_SECRET")
+
+platform = "spotify"
 
 def get_spotify_token():
     auth_string = f"{client_id}:{client_secret}"
@@ -60,6 +63,10 @@ def search_spotify_tracks_by_genres(token, genres):
     json_result = result.json()
     return json_result.get("tracks", [])
 
+
+def search_youtube_tracks_by_genre(genres):
+    return webbrowser.open(f"https://www.youtube.com/results?search_query={genres}+song")    
+
 def getEmotion(frame):
     try:
         analyze = DeepFace.analyze(frame, actions=["emotion"])
@@ -90,18 +97,36 @@ def index():
 def video():
     return Response(get_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
+@app.route('/select_platform', methods = ['GET', 'POST'])
+def select_platform():
+    global platform
+    if request.method == "POST":
+        try:
+            platform = request.form.get("variable")
+        except:
+            print("Wrong")
+
+    return render_template('moodFy.html', platform = platform)
+
 @app.route('/capture_emotion', methods=['POST'])
 def capture_emotion():
     success, frame = camera.read()
     if success:
         emotion = getEmotion(frame)
         if emotion:
-            token = get_spotify_token()
-            genres = get_spotify_genres(emotion)
-            if genres:
-                tracks = search_spotify_tracks_by_genres(token, genres)
-                return render_template('moodFy.html', emotion=emotion, tracks=tracks)
-    return render_template('moodFy.html', emotion="No face detected or no tracks found", tracks=[])
+            if platform == "spotify":
+                token = get_spotify_token()
+                genres = get_spotify_genres(emotion)
+                if genres:
+                    tracks = search_spotify_tracks_by_genres(token, genres)
+                    return render_template('moodFy.html', emotion = emotion, tracks = tracks, platform = platform)
+            elif platform == "youtube":
+                print("Youtube")
+                search_youtube_tracks_by_genre(emotion)
+                return render_template('moodFy.html', emotion = emotion, tracks = [], platform = platform)
+
+
+    return render_template('moodFy.html', emotion="No face detected or no tracks found", tracks=[], platform = platform)
 
 if __name__ == "__main__":
     app.run(debug=True)
