@@ -1,10 +1,9 @@
-from flask import Flask, render_template, Response, request, redirect, url_for
-from deepface import DeepFace
-import cv2
 import base64
-import json
 import os
 import webbrowser
+import cv2
+from flask import Flask, render_template, Response, request
+from deepface import DeepFace
 from dotenv import load_dotenv
 from requests import post, get
 
@@ -113,6 +112,7 @@ def capture_emotion():
     success, frame = camera.read()
     if success:
         emotion = getEmotion(frame)
+        print(emotion)
         if emotion:
             if platform == "spotify":
                 token = get_spotify_token()

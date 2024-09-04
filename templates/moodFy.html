@@ -15,7 +15,8 @@
     </header>
     <div class="container">
       <div class="video-container">
-        Platform = {{ platform }}
+        Platform = {%if plataform != none %}{{ platform }} {%else%}spotify {%
+        endif %}
 
         <form action="{{ url_for('select_platform') }}" method="post">
           <button
